@@ -40,14 +40,14 @@ class ProductCreate(BaseModel):
     name: str
     category: str
     price: float
-    stock: int
+    stock: float  # Changed to float to support fractional quantities
     unit: str = "kg"
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
     price: Optional[float] = None
-    stock: Optional[int] = None
+    stock: Optional[float] = None  # Changed to float to support fractional quantities
     unit: Optional[str] = None
 
 class Client(BaseModel):
