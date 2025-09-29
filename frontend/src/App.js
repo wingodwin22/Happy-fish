@@ -1,52 +1,457 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './App.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+function App() {
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [products, setProducts] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  // Product form state
+  const [productForm, setProductForm] = useState({
+    name: '', category: 'poisson', price: '', stock: '', unit: 'kg'
+  });
+
+  // Sale form state
+  const [saleForm, setSaleForm] = useState({
+    client_name: 'Client Anonyme',
+    items: [{ product_id: '', quantity: 1 }],
+    discount: 0,
+    payment_method: 'espèces'
+  });
+
+  // Load data on component mount
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const [productsRes, clientsRes, salesRes, statsRes] = await Promise.all([
+        axios.get(`${API}/products`),
+        axios.get(`${API}/clients`),
+        axios.get(`${API}/sales`),
+        axios.get(`${API}/dashboard/stats`)
+      ]);
+      
+      setProducts(productsRes.data);
+      setClients(clientsRes.data);
+      setSales(salesRes.data);
+      setDashboardStats(statsRes.data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const handleProductSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/products`, {
+        ...productForm,
+        price: parseFloat(productForm.price),
+        stock: parseInt(productForm.stock)
+      });
+      setProductForm({ name: '', category: 'poisson', price: '', stock: '', unit: 'kg' });
+      loadDashboardData();
+    } catch (error) {
+      console.error('Erreur lors de la création du produit:', error);
+    }
+  };
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+  const handleSaleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const saleData = {
+        ...saleForm,
+        items: saleForm.items.map(item => ({
+          product_id: item.product_id,
+          quantity: parseFloat(item.quantity)
+        })),
+        discount: parseFloat(saleForm.discount)
+      };
+      
+      await axios.post(`${API}/sales`, saleData);
+      setSaleForm({
+        client_name: 'Client Anonyme',
+        items: [{ product_id: '', quantity: 1 }],
+        discount: 0,
+        payment_method: 'espèces'
+      });
+      loadDashboardData();
+    } catch (error) {
+      console.error('Erreur lors de la création de la vente:', error);
+      alert('Erreur: ' + (error.response?.data?.detail || 'Erreur inconnue'));
+    }
+  };
+
+  const addSaleItem = () => {
+    setSaleForm({
+      ...saleForm,
+      items: [...saleForm.items, { product_id: '', quantity: 1 }]
+    });
+  };
+
+  const removeSaleItem = (index) => {
+    const newItems = saleForm.items.filter((_, i) => i !== index);
+    setSaleForm({ ...saleForm, items: newItems });
+  };
+
+  const updateSaleItem = (index, field, value) => {
+    const newItems = [...saleForm.items];
+    newItems[index][field] = value;
+    setSaleForm({ ...saleForm, items: newItems });
+  };
+
+  const NavButton = ({ view, label, icon }) => (
+    <button
+      onClick={() => setCurrentView(view)}
+      className={`nav-btn ${
+        currentView === view ? 'nav-btn-active' : 'nav-btn-inactive'
+      }`}
+    >
+      <span className="nav-icon">{icon}</span>
+      {label}
+    </button>
+  );
+
+  const StatCard = ({ title, value, subtitle, color }) => (
+    <div className={`stat-card stat-card-${color}`}>
+      <h3 className="stat-title">{title}</h3>
+      <p className="stat-value">{value}</p>
+      {subtitle && <p className="stat-subtitle">{subtitle}</p>}
     </div>
   );
-};
 
-function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+    <div className="app">
+      {/* Header */}
+      <header className="header">
+        <div className="header-content">
+          <h1 className="header-title">
+            ❄️ Boutique Surgelés
+          </h1>
+          <p className="header-subtitle">Gestion moderne de votre activité</p>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="nav">
+        <NavButton view="dashboard" label="Tableau de Bord" icon="📊" />
+        <NavButton view="products" label="Produits" icon="🐟" />
+        <NavButton view="sales" label="Ventes" icon="💰" />
+        <NavButton view="clients" label="Clients" icon="👥" />
+      </nav>
+
+      {/* Main Content */}
+      <main className="main">
+        {loading && (
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <p>Chargement...</p>
+          </div>
+        )}
+
+        {/* Dashboard */}
+        {currentView === 'dashboard' && (
+          <div className="dashboard">
+            <h2 className="page-title">Tableau de Bord</h2>
+            
+            <div className="stats-grid">
+              <StatCard 
+                title="Produits" 
+                value={dashboardStats.total_products || 0}
+                color="blue"
+              />
+              <StatCard 
+                title="Ventes Aujourd'hui" 
+                value={dashboardStats.today_sales_count || 0}
+                subtitle={`${(dashboardStats.today_revenue || 0).toFixed(2)}€`}
+                color="green"
+              />
+              <StatCard 
+                title="Clients" 
+                value={dashboardStats.total_clients || 0}
+                color="purple"
+              />
+              <StatCard 
+                title="Stock Faible" 
+                value={dashboardStats.low_stock_count || 0}
+                color="red"
+              />
+            </div>
+
+            {dashboardStats.low_stock_products && dashboardStats.low_stock_products.length > 0 && (
+              <div className="alert alert-warning">
+                <h3>⚠️ Produits en stock faible:</h3>
+                <ul>
+                  {dashboardStats.low_stock_products.map(product => (
+                    <li key={product.id}>
+                      <strong>{product.name}</strong> - Stock: {product.stock} {product.unit}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Products */}
+        {currentView === 'products' && (
+          <div className="products">
+            <h2 className="page-title">Gestion des Produits</h2>
+            
+            {/* Add Product Form */}
+            <div className="form-card">
+              <h3>Ajouter un Produit</h3>
+              <form onSubmit={handleProductSubmit} className="form">
+                <div className="form-row">
+                  <input
+                    type="text"
+                    placeholder="Nom du produit"
+                    value={productForm.name}
+                    onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                    required
+                    className="form-input"
+                  />
+                  <select
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({...productForm, category: e.target.value})}
+                    className="form-select"
+                  >
+                    <option value="poisson">🐟 Poisson</option>
+                    <option value="viande">🥩 Viande</option>
+                  </select>
+                </div>
+                <div className="form-row">
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Prix (€)"
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                    required
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Stock"
+                    value={productForm.stock}
+                    onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
+                    required
+                    className="form-input"
+                  />
+                  <select
+                    value={productForm.unit}
+                    onChange={(e) => setProductForm({...productForm, unit: e.target.value})}
+                    className="form-select"
+                  >
+                    <option value="kg">kg</option>
+                    <option value="pièce">pièce</option>
+                    <option value="barquette">barquette</option>
+                  </select>
+                </div>
+                <button type="submit" className="btn btn-primary">Ajouter Produit</button>
+              </form>
+            </div>
+
+            {/* Products List */}
+            <div className="table-card">
+              <h3>Liste des Produits ({products.length})</h3>
+              <div className="table-container">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Catégorie</th>
+                      <th>Prix</th>
+                      <th>Stock</th>
+                      <th>Unité</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map(product => (
+                      <tr key={product.id}>
+                        <td>{product.name}</td>
+                        <td>
+                          <span className={`category-badge category-${product.category}`}>
+                            {product.category === 'poisson' ? '🐟' : '🥩'} {product.category}
+                          </span>
+                        </td>
+                        <td>{product.price.toFixed(2)}€</td>
+                        <td className={product.stock <= 5 ? 'text-red' : ''}>
+                          {product.stock}
+                        </td>
+                        <td>{product.unit}</td>
+                        <td>
+                          <span className={`status-badge ${
+                            product.stock <= 0 ? 'status-danger' : 
+                            product.stock <= 5 ? 'status-warning' : 'status-success'
+                          }`}>
+                            {product.stock <= 0 ? 'Rupture' : 
+                             product.stock <= 5 ? 'Stock Faible' : 'Disponible'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sales */}
+        {currentView === 'sales' && (
+          <div className="sales">
+            <h2 className="page-title">Gestion des Ventes</h2>
+            
+            {/* New Sale Form */}
+            <div className="form-card">
+              <h3>Nouvelle Vente</h3>
+              <form onSubmit={handleSaleSubmit} className="form">
+                <div className="form-row">
+                  <input
+                    type="text"
+                    placeholder="Nom du client"
+                    value={saleForm.client_name}
+                    onChange={(e) => setSaleForm({...saleForm, client_name: e.target.value})}
+                    className="form-input"
+                  />
+                  <select
+                    value={saleForm.payment_method}
+                    onChange={(e) => setSaleForm({...saleForm, payment_method: e.target.value})}
+                    className="form-select"
+                  >
+                    <option value="espèces">💰 Espèces</option>
+                    <option value="carte">💳 Carte</option>
+                    <option value="crédit">📋 Crédit</option>
+                  </select>
+                </div>
+
+                {/* Sale Items */}
+                <div className="sale-items">
+                  <h4>Articles:</h4>
+                  {saleForm.items.map((item, index) => (
+                    <div key={index} className="sale-item">
+                      <select
+                        value={item.product_id}
+                        onChange={(e) => updateSaleItem(index, 'product_id', e.target.value)}
+                        required
+                        className="form-select"
+                      >
+                        <option value="">Sélectionner un produit</option>
+                        {products.filter(p => p.stock > 0).map(product => (
+                          <option key={product.id} value={product.id}>
+                            {product.name} - {product.price}€/{product.unit} (Stock: {product.stock})
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        placeholder="Quantité"
+                        value={item.quantity}
+                        onChange={(e) => updateSaleItem(index, 'quantity', e.target.value)}
+                        required
+                        className="form-input quantity-input"
+                      />
+                      {saleForm.items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeSaleItem(index)}
+                          className="btn btn-danger btn-sm"
+                        >
+                          ❌
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addSaleItem}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    ➕ Ajouter un article
+                  </button>
+                </div>
+
+                <div className="form-row">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Réduction (€)"
+                    value={saleForm.discount}
+                    onChange={(e) => setSaleForm({...saleForm, discount: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+                
+                <button type="submit" className="btn btn-primary">Enregistrer Vente</button>
+              </form>
+            </div>
+
+            {/* Sales List */}
+            <div className="table-card">
+              <h3>Historique des Ventes ({sales.length})</h3>
+              <div className="table-container">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>N° Facture</th>
+                      <th>Client</th>
+                      <th>Articles</th>
+                      <th>Total</th>
+                      <th>Paiement</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sales.map(sale => (
+                      <tr key={sale.id}>
+                        <td><strong>{sale.invoice_number}</strong></td>
+                        <td>{sale.client_name}</td>
+                        <td>{sale.items.length} article(s)</td>
+                        <td><strong>{sale.total.toFixed(2)}€</strong></td>
+                        <td>
+                          <span className={`payment-badge payment-${sale.payment_method}`}>
+                            {sale.payment_method === 'espèces' ? '💰' : 
+                             sale.payment_method === 'carte' ? '💳' : '📋'} 
+                            {sale.payment_method}
+                          </span>
+                        </td>
+                        <td>{new Date(sale.created_at).toLocaleDateString('fr-FR')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Clients */}
+        {currentView === 'clients' && (
+          <div className="clients">
+            <h2 className="page-title">Gestion des Clients</h2>
+            <div className="coming-soon">
+              <h3>🚧 Fonctionnalité en cours de développement</h3>
+              <p>La gestion complète des clients sera disponible dans la prochaine version.</p>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
