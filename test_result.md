@@ -107,51 +107,63 @@ user_problem_statement: "Application web moderne et responsive pour boutique de 
 backend:
   - task: "API Produits CRUD (création, lecture, modification, suppression)"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Implémenté modèles Product avec catégories poisson/viande, prix, stock, unité. Endpoints CRUD complets avec validation stock."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - Tous les endpoints CRUD testés avec succès: POST (création), GET (liste et détail), PUT (modification), DELETE (suppression). Validation des erreurs 404 pour produits inexistants. Modèle Product modifié pour supporter stock en float (quantités fractionnelles). Tests avec données réalistes (Saumon, Crevettes, Bœuf, Porc)."
 
   - task: "API Ventes avec calcul automatique et gestion stock"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Implémenté système de ventes avec articles multiples, calcul total, réduction, gestion stock automatique, numéro facture."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - Système de ventes complet testé: création ventes multi-articles, calculs automatiques (subtotal, réduction, total), mise à jour automatique du stock, génération numéros facture, validation stock insuffisant, récupération ventes (liste et détail). Tous les calculs mathématiques corrects."
 
   - task: "API Clients basique"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Implémenté modèle Client avec crédit, dette, informations de contact."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - API Clients testée avec succès: création clients avec informations complètes (nom, téléphone, email, adresse, limite crédit), récupération liste clients. Tests avec données réalistes (Restaurant Le Poisson Bleu, Boucherie Martin)."
 
   - task: "API Dashboard avec statistiques"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Implémenté endpoint dashboard avec stats produits, ventes jour, clients, alertes stock faible."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - Dashboard statistiques complet testé: compteurs (produits, clients, ventes), revenus du jour, détection automatique stock faible (≤5), structure JSON complète avec tous champs requis. Alertes stock faible fonctionnelles."
 
 frontend:
   - task: "Interface responsive avec design froid (bleu/blanc/gris)"
