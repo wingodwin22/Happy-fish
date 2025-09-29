@@ -107,7 +107,7 @@ def parse_from_mongo(item):
     """Parse data from MongoDB"""
     if isinstance(item, dict):
         for key, value in item.items():
-            if isinstance(value, str) and 'T' in value and value.endswith('Z') or '+' in value[-6:]:
+            if isinstance(value, str) and 'T' in value and (value.endswith('Z') or '+' in value[-6:]):
                 try:
                     item[key] = datetime.fromisoformat(value.replace('Z', '+00:00'))
                 except:
