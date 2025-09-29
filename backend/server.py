@@ -31,7 +31,7 @@ class Product(BaseModel):
     name: str
     category: str  # "poisson" ou "viande"
     price: float
-    stock: int
+    stock: float  # Changed to float to support fractional quantities
     unit: str = "kg"  # unité de mesure
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
