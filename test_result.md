@@ -217,15 +217,15 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
 
 test_plan:
   current_focus:
-    - "API Produits CRUD (création, lecture, modification, suppression)"
-    - "API Ventes avec calcul automatique et gestion stock"
-    - "API Dashboard avec statistiques"
     - "Interface responsive avec design froid (bleu/blanc/gris)"
+    - "Gestion des produits (CRUD interface)"
+    - "Système de ventes avec sélection produits multiples"
+    - "Tableau de bord avec statistiques visuelles"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -233,3 +233,5 @@ test_plan:
 agent_communication:
     - agent: "main"
     - message: "MVP Boutique Surgelés implémenté avec gestion produits (poisson/viande), système ventes, dashboard stats, design responsive bleu/blanc/gris. Prêt pour tests backend API avec focus sur CRUD produits et ventes."
+    - agent: "testing"
+    - message: "🧊 BACKEND TESTS COMPLETS - TOUS FONCTIONNELS ✅ Tous les APIs backend testés avec succès (100% réussite): API Produits CRUD, API Ventes avec gestion stock automatique, API Clients, API Dashboard statistiques. Corrections mineures appliquées: modèle Product stock en float pour quantités fractionnelles, fix parse_from_mongo pour ObjectId. Système prêt pour tests frontend. Créé backend_test.py pour tests futurs."
