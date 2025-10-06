@@ -67,6 +67,13 @@ class ClientCreate(BaseModel):
     email: Optional[str] = None
     credit_limit: float = 0.0
 
+class ClientUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    email: Optional[str] = None
+    credit_limit: Optional[float] = None
+
 class SaleItem(BaseModel):
     product_id: str
     product_name: str
