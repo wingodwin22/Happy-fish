@@ -281,8 +281,7 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus:
-    - "Création automatique client lors de vente"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -296,3 +295,5 @@ agent_communication:
     - message: "🎯 FRONTEND TESTS COMPLETS - TOUS FONCTIONNELS ✅ Tests automatisés complets réalisés sur https://frostbite-sales.preview.emergentagent.com avec 100% de réussite: Interface responsive (desktop/mobile), Navigation 4 onglets, Dashboard avec statistiques temps réel et alertes stock faible, Gestion produits CRUD avec badges catégories, Système ventes multi-articles avec calculs automatiques, Intégration frontend-backend parfaite. Aucune erreur console/réseau détectée. Application prête pour production."
     - agent: "testing"
     - message: "🔍 TESTS NOUVELLES FONCTIONNALITÉS TERMINÉS - Résultats: ✅ API DELETE Client (suppression + gestion 404), ✅ Stock fractionnaire (calculs décimaux précis), ❌ Création automatique client manquante. Fonctionnalité création client automatique lors de vente non implémentée dans endpoint /api/sales - nécessite développement par main agent."
+    - agent: "testing"
+    - message: "🎯 CRÉATION AUTOMATIQUE CLIENT - TESTS SPÉCIFIQUES COMPLETS ✅ Fonctionnalité critique parfaitement validée avec 12/12 tests réussis (100%). TOUS SCÉNARIOS CONFIRMÉS: 1) Nouveau client créé automatiquement (Restaurant La Marine, Supermarché Frais Plus) avec liaison sale.client_id correcte, 2) Client existant réutilisé sans doublon (Boulangerie Dupont), 3) Cas limites respectés (Client Anonyme/nom vide = pas de création, client_id fourni prioritaire), 4) Intégration complète fonctionnelle (stock mis à jour, calculs corrects). Endpoint POST /api/sales opérationnel pour tous les cas d'usage demandés."
