@@ -681,10 +681,10 @@ function App() {
           <div className="clients">
             <h2 className="page-title">Gestion des Clients</h2>
             
-            {/* Add Client Form */}
+            {/* Add/Edit Client Form */}
             <div className="form-card">
-              <h3>Ajouter un Client</h3>
-              <form onSubmit={handleClientSubmit} className="form">
+              <h3>{editingClient ? 'Modifier le Client' : 'Ajouter un Client'}</h3>
+              <form onSubmit={editingClient ? handleUpdateClient : handleClientSubmit} className="form">
                 <div className="form-row">
                   <input
                     type="text"
@@ -729,7 +729,16 @@ function App() {
                     className="form-input"
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">Ajouter Client</button>
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary">
+                    {editingClient ? 'Modifier' : 'Ajouter'} Client
+                  </button>
+                  {editingClient && (
+                    <button type="button" onClick={cancelEdit} className="btn btn-secondary">
+                      Annuler
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
