@@ -117,6 +117,94 @@ function App() {
     }
   };
 
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    setProductForm({
+      name: product.name,
+      category: product.category,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      unit: product.unit
+    });
+  };
+
+  const handleEditClient = (client) => {
+    setEditingClient(client);
+    setClientForm({
+      name: client.name,
+      phone: client.phone || '',
+      email: client.email || '',
+      address: client.address || '',
+      credit_limit: client.credit_limit.toString()
+    });
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API}/products/${editingProduct.id}`, {
+        ...productForm,
+        price: parseFloat(productForm.price),
+        stock: parseFloat(productForm.stock)
+      });
+      setEditingProduct(null);
+      setProductForm({ name: '', category: 'poisson', price: '', stock: '', unit: 'kg' });
+      loadDashboardData();
+    } catch (error) {
+      console.error('Erreur lors de la modification du produit:', error);
+    }
+  };
+
+  const handleUpdateClient = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API}/clients/${editingClient.id}`, {
+        ...clientForm,
+        credit_limit: parseFloat(clientForm.credit_limit)
+      });
+      setEditingClient(null);
+      setClientForm({ name: '', phone: '', email: '', address: '', credit_limit: 0 });
+      loadDashboardData();
+    } catch (error) {
+      console.error('Erreur lors de la modification du client:', error);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingProduct(null);
+    setEditingClient(null);
+    setProductForm({ name: '', category: 'poisson', price: '', stock: '', unit: 'kg' });
+    setClientForm({ name: '', phone: '', email: '', address: '', credit_limit: 0 });
+  };
+
+  const searchProducts = async (query) => {
+    if (query.length < 2) {
+      setProductSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    
+    try {
+      const response = await axios.get(`${API}/products/search/${encodeURIComponent(query)}`);
+      setProductSuggestions(response.data);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error('Erreur lors de la recherche de produits:', error);
+    }
+  };
+
+  const selectProductSuggestion = (product) => {
+    setProductForm({
+      name: product.name,
+      category: 'poisson', // Will be updated when we get full product details
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      unit: product.unit
+    });
+    setShowSuggestions(false);
+    setProductSuggestions([]);
+  };
+
   const handleSaleSubmit = async (e) => {
     e.preventDefault();
     try {
