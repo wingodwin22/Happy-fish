@@ -196,12 +196,12 @@ backend:
         - comment: "✅ TESTÉ ET FONCTIONNEL - Stock fractionnaire parfaitement implémenté: création produit avec stock 5.5 kg, vente de 2.3 kg, calcul correct du prix (74.75€), stock restant exact (3.2 kg). Tous les calculs décimaux précis."
 
   - task: "Création automatique client lors de vente"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
@@ -209,6 +209,9 @@ backend:
         - working: false
         - agent: "testing"
         - comment: "❌ FONCTIONNALITÉ MANQUANTE - Test révèle que la création automatique de client n'est pas implémentée. Endpoint /api/sales accepte client_name sans client_id mais ne crée pas d'enregistrement client. Nécessite implémentation dans create_sale()."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ FONCTIONNALITÉ IMPLÉMENTÉE ET TESTÉE - Tests complets réalisés avec 100% de réussite (12/12 tests). SCÉNARIOS VALIDÉS: 1) Création automatique nouveau client (Restaurant La Marine) avec liaison correcte sale.client_id, 2) Réutilisation client existant (Boulangerie Dupont) sans doublon, 3) Cas limites: 'Client Anonyme' et client_name vide ne créent pas de client, client_id fourni prioritaire, 4) Intégration complète avec stock mis à jour et calculs corrects. Fonctionnalité critique parfaitement opérationnelle."
 
 frontend:
   - task: "Interface responsive avec design froid (bleu/blanc/gris)"
