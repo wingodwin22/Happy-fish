@@ -23,6 +23,14 @@ function App() {
     name: '', phone: '', email: '', address: '', credit_limit: 0
   });
 
+  // Editing states
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editingClient, setEditingClient] = useState(null);
+
+  // Product suggestions
+  const [productSuggestions, setProductSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   // Sale form state
   const [saleForm, setSaleForm] = useState({
     client_id: '',
