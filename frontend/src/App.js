@@ -254,7 +254,7 @@ function App() {
   const addSaleItem = () => {
     setSaleForm({
       ...saleForm,
-      items: [...saleForm.items, { product_id: '', quantity: 1 }]
+      items: [...saleForm.items, { product_id: '', quantity: 0 }]
     });
   };
 
