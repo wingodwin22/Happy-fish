@@ -112,18 +112,38 @@ function App() {
   const handleSaleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let clientId = saleForm.client_id;
+      let clientName = saleForm.client_name;
+
+      // Si un nouveau client est saisi, le créer automatiquement
+      if (!clientId && clientName && clientName !== 'Client Anonyme') {
+        const newClient = {
+          name: clientName,
+          phone: '',
+          email: '',
+          address: '',
+          credit_limit: 0
+        };
+        const clientResponse = await axios.post(`${API}/clients`, newClient);
+        clientId = clientResponse.data.id;
+        clientName = clientResponse.data.name;
+      }
+
       const saleData = {
-        ...saleForm,
+        client_id: clientId || null,
+        client_name: clientName || 'Client Anonyme',
         items: saleForm.items.map(item => ({
           product_id: item.product_id,
           quantity: parseFloat(item.quantity)
         })),
-        discount: parseFloat(saleForm.discount)
+        discount: parseFloat(saleForm.discount),
+        payment_method: saleForm.payment_method
       };
       
       await axios.post(`${API}/sales`, saleData);
       setSaleForm({
-        client_name: 'Client Anonyme',
+        client_id: '',
+        client_name: '',
         items: [{ product_id: '', quantity: 1 }],
         discount: 0,
         payment_method: 'espèces'
