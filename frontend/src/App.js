@@ -542,9 +542,100 @@ function App() {
         {currentView === 'clients' && (
           <div className="clients">
             <h2 className="page-title">Gestion des Clients</h2>
-            <div className="coming-soon">
-              <h3>🚧 Fonctionnalité en cours de développement</h3>
-              <p>La gestion complète des clients sera disponible dans la prochaine version.</p>
+            
+            {/* Add Client Form */}
+            <div className="form-card">
+              <h3>Ajouter un Client</h3>
+              <form onSubmit={handleClientSubmit} className="form">
+                <div className="form-row">
+                  <input
+                    type="text"
+                    placeholder="Nom du client *"
+                    value={clientForm.name}
+                    onChange={(e) => setClientForm({...clientForm, name: e.target.value})}
+                    required
+                    className="form-input"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Téléphone"
+                    value={clientForm.phone}
+                    onChange={(e) => setClientForm({...clientForm, phone: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-row">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={clientForm.email}
+                    onChange={(e) => setClientForm({...clientForm, email: e.target.value})}
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Adresse"
+                    value={clientForm.address}
+                    onChange={(e) => setClientForm({...clientForm, address: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-row">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Limite de crédit (€)"
+                    value={clientForm.credit_limit}
+                    onChange={(e) => setClientForm({...clientForm, credit_limit: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">Ajouter Client</button>
+              </form>
+            </div>
+
+            {/* Clients List */}
+            <div className="table-card">
+              <h3>Liste des Clients ({clients.length})</h3>
+              <div className="table-container">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Téléphone</th>
+                      <th>Email</th>
+                      <th>Adresse</th>
+                      <th>Limite Crédit</th>
+                      <th>Dette Actuelle</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clients.map(client => (
+                      <tr key={client.id}>
+                        <td><strong>{client.name}</strong></td>
+                        <td>{client.phone || '-'}</td>
+                        <td>{client.email || '-'}</td>
+                        <td>{client.address || '-'}</td>
+                        <td>{client.credit_limit.toFixed(2)}€</td>
+                        <td className={client.current_debt > 0 ? 'text-red' : ''}>
+                          {client.current_debt.toFixed(2)}€
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleDeleteClient(client.id)}
+                            className="btn btn-danger btn-sm"
+                            title="Supprimer le client"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
