@@ -175,6 +175,26 @@ async def get_clients():
     clients = await db.clients.find().to_list(1000)
     return [Client(**parse_from_mongo(client)) for client in clients]
 
+@api_router.get("/clients/{client_id}", response_model=Client)
+async def get_client(client_id: str):
+    client = await db.clients.find_one({"id": client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client non trouvé")
+    return Client(**parse_from_mongo(client))
+
+@api_router.put("/clients/{client_id}", response_model=Client)
+async def update_client(client_id: str, client_update: ClientUpdate):
+    existing_client = await db.clients.find_one({"id": client_id})
+    if not existing_client:
+        raise HTTPException(status_code=404, detail="Client non trouvé")
+    
+    update_data = {k: v for k, v in client_update.dict().items() if v is not None}
+    
+    await db.clients.update_one({"id": client_id}, {"$set": prepare_for_mongo(update_data)})
+    
+    updated_client = await db.clients.find_one({"id": client_id})
+    return Client(**parse_from_mongo(updated_client))
+
 @api_router.delete("/clients/{client_id}")
 async def delete_client(client_id: str):
     result = await db.clients.delete_one({"id": client_id})
