@@ -338,6 +338,7 @@ function App() {
                       <th>Stock</th>
                       <th>Unité</th>
                       <th>Statut</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -362,6 +363,15 @@ function App() {
                             {product.stock <= 0 ? 'Rupture' : 
                              product.stock <= 5 ? 'Stock Faible' : 'Disponible'}
                           </span>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="btn btn-danger btn-sm"
+                            title="Supprimer le produit"
+                          >
+                            🗑️
+                          </button>
                         </td>
                       </tr>
                     ))}
