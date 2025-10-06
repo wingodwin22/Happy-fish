@@ -213,6 +213,54 @@ backend:
         - agent: "testing"
         - comment: "✅ FONCTIONNALITÉ IMPLÉMENTÉE ET TESTÉE - Tests complets réalisés avec 100% de réussite (12/12 tests). SCÉNARIOS VALIDÉS: 1) Création automatique nouveau client (Restaurant La Marine) avec liaison correcte sale.client_id, 2) Réutilisation client existant (Boulangerie Dupont) sans doublon, 3) Cas limites: 'Client Anonyme' et client_name vide ne créent pas de client, client_id fourni prioritaire, 4) Intégration complète avec stock mis à jour et calculs corrects. Fonctionnalité critique parfaitement opérationnelle."
 
+  - task: "Restriction crédit pour nouveaux clients"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - Restriction crédit parfaitement implémentée. Test confirmé: tentative vente à crédit avec nouveau client (client_name fourni, client_id vide, payment_method='crédit') retourne erreur 400 avec message explicite 'Impossible de vendre à crédit à un nouveau client. Veuillez d'abord enregistrer le client avec une limite de crédit.' Aucun client créé lors de la tentative. Sécurité respectée."
+
+  - task: "API Édition Client (GET et PUT)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - API édition client complète: GET /api/clients/{id} récupère client spécifique avec tous champs (id, name, phone, email, address, credit_limit), PUT /api/clients/{id} modifie client existant avec validation, modifications persistées correctement, gestion erreur 404 pour client inexistant. Toutes fonctionnalités d'édition opérationnelles."
+
+  - task: "API Recherche Produits"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - API recherche produits GET /api/products/search/{query} parfaitement implémentée: recherche insensible à la casse (sau/SAU/Crevettes/bœuf), limite 10 résultats respectée, format réponse correct (id, name, price, stock, unit), recherche terme court (<2 chars) retourne liste vide, recherche inexistante (xyz) retourne 0 résultats. Fonctionnalité de recherche complète."
+
+  - task: "Validation quantités positives"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+        - agent: "testing"
+        - comment: "❌ VALIDATION MANQUANTE - Test révèle que les quantités négatives sont acceptées dans les ventes. Endpoint POST /api/sales ne valide pas que quantity > 0. Quantité -2.5 acceptée et traite normalement la vente avec calcul négatif. SÉCURITÉ CRITIQUE: validation quantity > 0 manquante dans create_sale() ligne 266-275."
+
 frontend:
   - task: "Interface responsive avec design froid (bleu/blanc/gris)"
     implemented: true
