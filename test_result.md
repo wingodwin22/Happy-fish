@@ -165,6 +165,51 @@ backend:
         - agent: "testing"
         - comment: "✅ TESTÉ ET FONCTIONNEL - Dashboard statistiques complet testé: compteurs (produits, clients, ventes), revenus du jour, détection automatique stock faible (≤5), structure JSON complète avec tous champs requis. Alertes stock faible fonctionnelles."
 
+  - task: "API DELETE Client"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Implémenté endpoint DELETE /api/clients/{id} pour supprimer clients existants."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - API DELETE client testée avec succès: suppression client existant, vérification suppression effective, gestion erreur 404 pour client inexistant. Validation robuste implémentée."
+
+  - task: "Gestion stock en float (quantités fractionnelles)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Modifié modèle Product pour supporter stock en float, permettant quantités décimales (ex: 2.5 kg)."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTÉ ET FONCTIONNEL - Stock fractionnaire parfaitement implémenté: création produit avec stock 5.5 kg, vente de 2.3 kg, calcul correct du prix (74.75€), stock restant exact (3.2 kg). Tous les calculs décimaux précis."
+
+  - task: "Création automatique client lors de vente"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Fonctionnalité demandée: créer automatiquement un client si client_name fourni mais client_id vide lors d'une vente."
+        - working: false
+        - agent: "testing"
+        - comment: "❌ FONCTIONNALITÉ MANQUANTE - Test révèle que la création automatique de client n'est pas implémentée. Endpoint /api/sales accepte client_name sans client_id mais ne crée pas d'enregistrement client. Nécessite implémentation dans create_sale()."
+
 frontend:
   - task: "Interface responsive avec design froid (bleu/blanc/gris)"
     implemented: true
