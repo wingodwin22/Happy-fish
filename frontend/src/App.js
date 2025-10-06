@@ -494,13 +494,22 @@ function App() {
                           </span>
                         </td>
                         <td>
-                          <button
-                            onClick={() => handleDeleteProduct(product.id)}
-                            className="btn btn-danger btn-sm"
-                            title="Supprimer le produit"
-                          >
-                            🗑️
-                          </button>
+                          <div className="action-buttons">
+                            <button
+                              onClick={() => handleEditProduct(product)}
+                              className="btn btn-secondary btn-sm"
+                              title="Modifier le produit"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="btn btn-danger btn-sm"
+                              title="Supprimer le produit"
+                            >
+                              🗑️
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
