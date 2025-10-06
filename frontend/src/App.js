@@ -367,19 +367,40 @@ function App() {
           <div className="products">
             <h2 className="page-title">Gestion des Produits</h2>
             
-            {/* Add Product Form */}
+            {/* Add/Edit Product Form */}
             <div className="form-card">
-              <h3>Ajouter un Produit</h3>
-              <form onSubmit={handleProductSubmit} className="form">
+              <h3>{editingProduct ? 'Modifier le Produit' : 'Ajouter un Produit'}</h3>
+              <form onSubmit={editingProduct ? handleUpdateProduct : handleProductSubmit} className="form">
                 <div className="form-row">
-                  <input
-                    type="text"
-                    placeholder="Nom du produit"
-                    value={productForm.name}
-                    onChange={(e) => setProductForm({...productForm, name: e.target.value})}
-                    required
-                    className="form-input"
-                  />
+                  <div className="input-container">
+                    <input
+                      type="text"
+                      placeholder="Nom du produit"
+                      value={productForm.name}
+                      onChange={(e) => {
+                        setProductForm({...productForm, name: e.target.value});
+                        if (!editingProduct) {
+                          searchProducts(e.target.value);
+                        }
+                      }}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      required
+                      className="form-input"
+                    />
+                    {showSuggestions && productSuggestions.length > 0 && (
+                      <div className="suggestions">
+                        {productSuggestions.map(product => (
+                          <div
+                            key={product.id}
+                            className="suggestion-item"
+                            onClick={() => selectProductSuggestion(product)}
+                          >
+                            <strong>{product.name}</strong> - {product.price}€/{product.unit} (Stock: {product.stock})
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <select
                     value={productForm.category}
                     onChange={(e) => setProductForm({...productForm, category: e.target.value})}
@@ -393,6 +414,7 @@ function App() {
                   <input
                     type="number"
                     step="0.01"
+                    min="0.01"
                     placeholder="Prix (€)"
                     value={productForm.price}
                     onChange={(e) => setProductForm({...productForm, price: e.target.value})}
@@ -401,6 +423,8 @@ function App() {
                   />
                   <input
                     type="number"
+                    step="0.01"
+                    min="0"
                     placeholder="Stock"
                     value={productForm.stock}
                     onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
@@ -417,7 +441,16 @@ function App() {
                     <option value="barquette">barquette</option>
                   </select>
                 </div>
-                <button type="submit" className="btn btn-primary">Ajouter Produit</button>
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary">
+                    {editingProduct ? 'Modifier' : 'Ajouter'} Produit
+                  </button>
+                  {editingProduct && (
+                    <button type="button" onClick={cancelEdit} className="btn btn-secondary">
+                      Annuler
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
