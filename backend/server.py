@@ -161,6 +161,17 @@ async def update_product(product_id: str, product_update: ProductUpdate):
     updated_product = await db.products.find_one({"id": product_id})
     return Product(**parse_from_mongo(updated_product))
 
+@api_router.get("/products/search/{query}")
+async def search_products(query: str):
+    """Rechercher des produits par nom pour auto-suggestion"""
+    if len(query.strip()) < 2:
+        return []
+    
+    # Recherche insensible à la casse avec regex
+    regex_pattern = {"$regex": query.strip(), "$options": "i"}
+    products = await db.products.find({"name": regex_pattern}).limit(10).to_list(10)
+    return [{"id": p["id"], "name": p["name"], "price": p["price"], "stock": p["stock"], "unit": p["unit"]} for p in products]
+
 @api_router.delete("/products/{product_id}")
 async def delete_product(product_id: str):
     result = await db.products.delete_one({"id": product_id})
