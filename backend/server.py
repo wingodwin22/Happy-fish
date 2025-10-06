@@ -185,6 +185,33 @@ async def delete_client(client_id: str):
 # Sales endpoints
 @api_router.post("/sales", response_model=Sale)
 async def create_sale(sale_data: SaleCreate):
+    # Handle automatic client creation if client_name provided but no client_id
+    client_id = sale_data.client_id
+    client_name = sale_data.client_name
+    
+    if not client_id and client_name and client_name.strip() != "Client Anonyme" and client_name.strip() != "":
+        # Check if client already exists by name
+        existing_client = await db.clients.find_one({"name": client_name.strip()})
+        
+        if existing_client:
+            # Use existing client
+            client_id = existing_client["id"]
+            client_name = existing_client["name"]
+        else:
+            # Create new client automatically
+            new_client = Client(
+                name=client_name.strip(),
+                phone="",
+                address="",
+                email="",
+                credit_limit=0.0,
+                current_debt=0.0
+            )
+            client_data = prepare_for_mongo(new_client.dict())
+            await db.clients.insert_one(client_data)
+            client_id = new_client.id
+            client_name = new_client.name
+    
     # Calculate sale totals
     items = []
     subtotal = 0.0
@@ -223,8 +250,8 @@ async def create_sale(sale_data: SaleCreate):
     
     # Create sale
     sale = Sale(
-        client_id=sale_data.client_id,
-        client_name=sale_data.client_name,
+        client_id=client_id,
+        client_name=client_name or "Client Anonyme",
         items=items,
         subtotal=subtotal,
         discount=sale_data.discount,
