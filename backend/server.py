@@ -175,6 +175,13 @@ async def get_clients():
     clients = await db.clients.find().to_list(1000)
     return [Client(**parse_from_mongo(client)) for client in clients]
 
+@api_router.delete("/clients/{client_id}")
+async def delete_client(client_id: str):
+    result = await db.clients.delete_one({"id": client_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Client non trouvé")
+    return {"message": "Client supprimé avec succès"}
+
 # Sales endpoints
 @api_router.post("/sales", response_model=Sale)
 async def create_sale(sale_data: SaleCreate):
