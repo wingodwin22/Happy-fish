@@ -629,6 +629,11 @@ class BoutiqueTestSuite:
         # Tests des APIs
         self.test_products_crud()
         self.test_clients_api()
+        
+        # NOUVEAUX TESTS pour les fonctionnalités demandées
+        self.test_fractional_stock()
+        self.test_automatic_client_creation()
+        
         self.test_sales_api()
         self.test_dashboard_api()
         
