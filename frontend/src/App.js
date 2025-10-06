@@ -594,10 +594,15 @@ function App() {
                       <input
                         type="number"
                         step="0.1"
-                        min="0.1"
+                        min="0.01"
                         placeholder="Quantité"
                         value={item.quantity}
-                        onChange={(e) => updateSaleItem(index, 'quantity', e.target.value)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value > 0) {
+                            updateSaleItem(index, 'quantity', e.target.value);
+                          }
+                        }}
                         required
                         className="form-input quantity-input"
                       />
