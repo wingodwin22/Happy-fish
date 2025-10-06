@@ -500,6 +500,56 @@ body {
   color: var(--color-gray-700);
 }
 
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Auto-suggestion */
+.input-container {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--color-gray-300);
+  border-top: none;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+}
+
+.suggestion-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-gray-200);
+  transition: var(--transition);
+}
+
+.suggestion-item:hover {
+  background: var(--color-ice);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-title {
