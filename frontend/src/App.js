@@ -392,13 +392,38 @@ function App() {
               <h3>Nouvelle Vente</h3>
               <form onSubmit={handleSaleSubmit} className="form">
                 <div className="form-row">
+                  <select
+                    value={saleForm.client_id}
+                    onChange={(e) => {
+                      const selectedClient = clients.find(c => c.id === e.target.value);
+                      setSaleForm({
+                        ...saleForm,
+                        client_id: e.target.value,
+                        client_name: selectedClient ? selectedClient.name : ''
+                      });
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">Sélectionner un client existant</option>
+                    {clients.map(client => (
+                      <option key={client.id} value={client.id}>
+                        {client.name} {client.phone ? `(${client.phone})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  
                   <input
                     type="text"
-                    placeholder="Nom du client"
+                    placeholder="Ou saisir nouveau client"
                     value={saleForm.client_name}
-                    onChange={(e) => setSaleForm({...saleForm, client_name: e.target.value})}
+                    onChange={(e) => setSaleForm({
+                      ...saleForm, 
+                      client_id: '', 
+                      client_name: e.target.value
+                    })}
                     className="form-input"
                   />
+                  
                   <select
                     value={saleForm.payment_method}
                     onChange={(e) => setSaleForm({...saleForm, payment_method: e.target.value})}
