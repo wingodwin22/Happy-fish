@@ -278,7 +278,8 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Création automatique client lors de vente"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -290,3 +291,5 @@ agent_communication:
     - message: "🧊 BACKEND TESTS COMPLETS - TOUS FONCTIONNELS ✅ Tous les APIs backend testés avec succès (100% réussite): API Produits CRUD, API Ventes avec gestion stock automatique, API Clients, API Dashboard statistiques. Corrections mineures appliquées: modèle Product stock en float pour quantités fractionnelles, fix parse_from_mongo pour ObjectId. Système prêt pour tests frontend. Créé backend_test.py pour tests futurs."
     - agent: "testing"
     - message: "🎯 FRONTEND TESTS COMPLETS - TOUS FONCTIONNELS ✅ Tests automatisés complets réalisés sur https://frostbite-sales.preview.emergentagent.com avec 100% de réussite: Interface responsive (desktop/mobile), Navigation 4 onglets, Dashboard avec statistiques temps réel et alertes stock faible, Gestion produits CRUD avec badges catégories, Système ventes multi-articles avec calculs automatiques, Intégration frontend-backend parfaite. Aucune erreur console/réseau détectée. Application prête pour production."
+    - agent: "testing"
+    - message: "🔍 TESTS NOUVELLES FONCTIONNALITÉS TERMINÉS - Résultats: ✅ API DELETE Client (suppression + gestion 404), ✅ Stock fractionnaire (calculs décimaux précis), ❌ Création automatique client manquante. Fonctionnalité création client automatique lors de vente non implémentée dans endpoint /api/sales - nécessite développement par main agent."
