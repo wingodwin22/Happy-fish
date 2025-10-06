@@ -18,9 +18,15 @@ function App() {
     name: '', category: 'poisson', price: '', stock: '', unit: 'kg'
   });
 
+  // Client form state
+  const [clientForm, setClientForm] = useState({
+    name: '', phone: '', email: '', address: '', credit_limit: 0
+  });
+
   // Sale form state
   const [saleForm, setSaleForm] = useState({
-    client_name: 'Client Anonyme',
+    client_id: '',
+    client_name: '',
     items: [{ product_id: '', quantity: 1 }],
     discount: 0,
     payment_method: 'espèces'
