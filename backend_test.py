@@ -260,6 +260,172 @@ class BoutiqueTestSuite:
         except Exception as e:
             self.log_test("DELETE Client inexistant (404)", False, str(e))
     
+    def test_fractional_stock(self):
+        """NOUVEAU - Test fonctionnalité stock en float (quantités décimales)"""
+        print("\n=== TEST STOCK FRACTIONNAIRE ===")
+        
+        # Test 1: Créer un produit avec stock décimal
+        fractional_product = {
+            "name": "Filet de Sole Premium",
+            "category": "poisson",
+            "price": 32.50,
+            "stock": 5.5,  # Stock fractionnaire
+            "unit": "kg"
+        }
+        
+        try:
+            response = requests.post(f"{self.base_url}/products", 
+                                   json=fractional_product, headers=self.headers, timeout=10)
+            if response.status_code == 200:
+                product = response.json()
+                self.created_products.append(product)
+                if abs(product['stock'] - 5.5) < 0.01:
+                    self.log_test("Créer produit stock fractionnaire", True, 
+                                f"Produit créé avec stock {product['stock']} kg")
+                else:
+                    self.log_test("Créer produit stock fractionnaire", False, 
+                                f"Stock incorrect: attendu 5.5, reçu {product['stock']}")
+            else:
+                self.log_test("Créer produit stock fractionnaire", False, 
+                            f"Status: {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Créer produit stock fractionnaire", False, str(e))
+            return
+        
+        # Test 2: Vendre une quantité décimale et vérifier le calcul
+        if self.created_clients and len(self.created_products) > 0:
+            fractional_sale = {
+                "client_id": self.created_clients[0]['id'],
+                "client_name": self.created_clients[0]['name'],
+                "items": [
+                    {
+                        "product_id": product['id'],
+                        "quantity": 2.3  # Quantité fractionnaire
+                    }
+                ],
+                "discount": 0.0,
+                "payment_method": "carte"
+            }
+            
+            try:
+                response = requests.post(f"{self.base_url}/sales", 
+                                       json=fractional_sale, headers=self.headers, timeout=10)
+                if response.status_code == 200:
+                    sale = response.json()
+                    self.created_sales.append(sale)
+                    
+                    # Vérifier le calcul du prix (32.50 * 2.3 = 74.75)
+                    expected_item_total = 32.50 * 2.3
+                    actual_item_total = sale['items'][0]['total_price']
+                    
+                    if abs(actual_item_total - expected_item_total) < 0.01:
+                        self.log_test("Calcul prix quantité fractionnaire", True, 
+                                    f"Calcul correct: {actual_item_total}€ (2.3 kg × 32.50€)")
+                    else:
+                        self.log_test("Calcul prix quantité fractionnaire", False, 
+                                    f"Calcul incorrect: attendu {expected_item_total}€, reçu {actual_item_total}€")
+                    
+                    # Vérifier le stock restant (5.5 - 2.3 = 3.2)
+                    verify_response = requests.get(f"{self.base_url}/products/{product['id']}", 
+                                                 headers=self.headers, timeout=10)
+                    if verify_response.status_code == 200:
+                        updated_product = verify_response.json()
+                        expected_remaining_stock = 5.5 - 2.3  # 3.2
+                        actual_remaining_stock = updated_product['stock']
+                        
+                        if abs(actual_remaining_stock - expected_remaining_stock) < 0.01:
+                            self.log_test("Stock restant après vente fractionnaire", True, 
+                                        f"Stock correct: {actual_remaining_stock} kg (5.5 - 2.3)")
+                        else:
+                            self.log_test("Stock restant après vente fractionnaire", False, 
+                                        f"Stock incorrect: attendu {expected_remaining_stock}, reçu {actual_remaining_stock}")
+                    
+                else:
+                    self.log_test("Vente quantité fractionnaire", False, 
+                                f"Status: {response.status_code}", response.text)
+            except Exception as e:
+                self.log_test("Vente quantité fractionnaire", False, str(e))
+
+    def test_automatic_client_creation(self):
+        """NOUVEAU - Test création automatique de client lors d'une vente"""
+        print("\n=== TEST CRÉATION CLIENT AUTOMATIQUE ===")
+        
+        if not self.created_products:
+            self.log_test("Test création client auto", False, "Pas de produits disponibles")
+            return
+        
+        # Compter les clients existants avant
+        try:
+            response = requests.get(f"{self.base_url}/clients", headers=self.headers, timeout=10)
+            initial_client_count = len(response.json()) if response.status_code == 200 else 0
+        except:
+            initial_client_count = 0
+        
+        # Test: Créer une vente avec client_name mais sans client_id
+        auto_client_sale = {
+            "client_id": None,  # Pas d'ID client
+            "client_name": "Nouveau Client Test Auto",  # Nom fourni
+            "items": [
+                {
+                    "product_id": self.created_products[0]['id'],
+                    "quantity": 1.0
+                }
+            ],
+            "discount": 0.0,
+            "payment_method": "espèces"
+        }
+        
+        try:
+            response = requests.post(f"{self.base_url}/sales", 
+                                   json=auto_client_sale, headers=self.headers, timeout=10)
+            if response.status_code == 200:
+                sale = response.json()
+                self.created_sales.append(sale)
+                
+                # Vérifier si un nouveau client a été créé automatiquement
+                verify_response = requests.get(f"{self.base_url}/clients", headers=self.headers, timeout=10)
+                if verify_response.status_code == 200:
+                    current_clients = verify_response.json()
+                    new_client_count = len(current_clients)
+                    
+                    # Chercher le client créé automatiquement
+                    auto_created_client = None
+                    for client in current_clients:
+                        if client['name'] == "Nouveau Client Test Auto":
+                            auto_created_client = client
+                            break
+                    
+                    if auto_created_client:
+                        self.log_test("Création automatique client", True, 
+                                    f"Client '{auto_created_client['name']}' créé automatiquement avec ID: {auto_created_client['id']}")
+                        
+                        # Vérifier que la vente référence le bon client
+                        if sale.get('client_id') == auto_created_client['id']:
+                            self.log_test("Liaison vente-client auto", True, 
+                                        "Vente correctement liée au client créé automatiquement")
+                        else:
+                            self.log_test("Liaison vente-client auto", False, 
+                                        f"Vente non liée au client auto (sale client_id: {sale.get('client_id')})")
+                    else:
+                        self.log_test("Création automatique client", False, 
+                                    "Client non créé automatiquement - fonctionnalité manquante")
+                        
+                        # Si pas de création auto, vérifier que la vente fonctionne quand même
+                        if sale['client_name'] == "Nouveau Client Test Auto":
+                            self.log_test("Vente sans client_id", True, 
+                                        "Vente créée avec client_name seulement")
+                        else:
+                            self.log_test("Vente sans client_id", False, 
+                                        "Problème avec client_name dans la vente")
+                else:
+                    self.log_test("Vérification clients après vente", False, 
+                                "Impossible de récupérer la liste des clients")
+            else:
+                self.log_test("Vente avec création client auto", False, 
+                            f"Status: {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Vente avec création client auto", False, str(e))
+
     def test_sales_api(self):
         """Test API Ventes avec gestion automatique du stock"""
         print("\n=== TEST VENTES API ===")
