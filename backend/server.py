@@ -259,6 +259,11 @@ async def create_sale(sale_data: SaleCreate):
             client_name = new_client.name
             is_new_client = True
     
+    # Validate quantities before processing
+    for item_data in sale_data.items:
+        if item_data["quantity"] <= 0:
+            raise HTTPException(status_code=400, detail="La quantité doit être supérieure à 0")
+    
     # Calculate sale totals
     items = []
     subtotal = 0.0
