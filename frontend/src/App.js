@@ -770,13 +770,22 @@ function App() {
                           {client.current_debt.toFixed(2)}€
                         </td>
                         <td>
-                          <button
-                            onClick={() => handleDeleteClient(client.id)}
-                            className="btn btn-danger btn-sm"
-                            title="Supprimer le client"
-                          >
-                            🗑️
-                          </button>
+                          <div className="action-buttons">
+                            <button
+                              onClick={() => handleEditClient(client)}
+                              className="btn btn-secondary btn-sm"
+                              title="Modifier le client"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClient(client.id)}
+                              className="btn btn-danger btn-sm"
+                              title="Supprimer le client"
+                            >
+                              🗑️
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
