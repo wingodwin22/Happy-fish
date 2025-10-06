@@ -165,7 +165,7 @@ class BoutiqueTestSuite:
                 self.log_test("Supprimer produit", False, str(e))
     
     def test_clients_api(self):
-        """Test API Clients"""
+        """Test API Clients avec DELETE"""
         print("\n=== TEST CLIENTS API ===")
         
         # Test 1: Créer des clients
@@ -183,6 +183,13 @@ class BoutiqueTestSuite:
                 "email": "martin@boucherie.fr", 
                 "address": "8 avenue des Bouchers, 75002 Paris",
                 "credit_limit": 500.0
+            },
+            {
+                "name": "Client Test Suppression",
+                "phone": "01.99.88.77.66",
+                "email": "test@suppression.fr",
+                "address": "Test Address",
+                "credit_limit": 100.0
             }
         ]
         
@@ -213,6 +220,45 @@ class BoutiqueTestSuite:
                             f"Status: {response.status_code}", response.text)
         except Exception as e:
             self.log_test("Récupérer tous les clients", False, str(e))
+        
+        # Test 3: NOUVEAU - Supprimer un client existant
+        if len(self.created_clients) >= 3:
+            client_to_delete = self.created_clients[2]  # Client Test Suppression
+            try:
+                response = requests.delete(f"{self.base_url}/clients/{client_to_delete['id']}", 
+                                         headers=self.headers, timeout=10)
+                if response.status_code == 200:
+                    self.log_test("DELETE Client existant", True, 
+                                f"Client {client_to_delete['name']} supprimé avec succès")
+                    # Vérifier qu'il n'existe plus
+                    verify_response = requests.get(f"{self.base_url}/clients", headers=self.headers, timeout=10)
+                    if verify_response.status_code == 200:
+                        remaining_clients = verify_response.json()
+                        deleted_client_exists = any(c['id'] == client_to_delete['id'] for c in remaining_clients)
+                        if not deleted_client_exists:
+                            self.log_test("Vérification suppression client", True, "Client bien supprimé de la liste")
+                        else:
+                            self.log_test("Vérification suppression client", False, "Client encore présent dans la liste")
+                    self.created_clients.remove(client_to_delete)  # Retirer de notre liste
+                else:
+                    self.log_test("DELETE Client existant", False, 
+                                f"Status: {response.status_code}", response.text)
+            except Exception as e:
+                self.log_test("DELETE Client existant", False, str(e))
+        
+        # Test 4: NOUVEAU - Tenter de supprimer un client inexistant (erreur 404 attendue)
+        fake_client_id = "client-inexistant-12345"
+        try:
+            response = requests.delete(f"{self.base_url}/clients/{fake_client_id}", 
+                                     headers=self.headers, timeout=10)
+            if response.status_code == 404:
+                self.log_test("DELETE Client inexistant (404)", True, 
+                            "Erreur 404 correctement retournée pour client inexistant")
+            else:
+                self.log_test("DELETE Client inexistant (404)", False, 
+                            f"Devrait retourner 404 mais status: {response.status_code}")
+        except Exception as e:
+            self.log_test("DELETE Client inexistant (404)", False, str(e))
     
     def test_sales_api(self):
         """Test API Ventes avec gestion automatique du stock"""
