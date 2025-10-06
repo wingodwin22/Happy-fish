@@ -325,12 +325,14 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: true
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Validation quantités positives"
+  stuck_tasks:
+    - "Validation quantités positives"
   test_all: false
   test_priority: "high_first"
 
