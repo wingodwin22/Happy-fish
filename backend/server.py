@@ -188,6 +188,7 @@ async def create_sale(sale_data: SaleCreate):
     # Handle automatic client creation if client_name provided but no client_id
     client_id = sale_data.client_id
     client_name = sale_data.client_name
+    is_new_client = False
     
     if not client_id and client_name and client_name.strip() != "Client Anonyme" and client_name.strip() != "":
         # Check if client already exists by name
@@ -198,7 +199,14 @@ async def create_sale(sale_data: SaleCreate):
             client_id = existing_client["id"]
             client_name = existing_client["name"]
         else:
-            # Create new client automatically
+            # Check if trying to sell on credit to new client (not allowed)
+            if sale_data.payment_method == "crédit":
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Impossible de vendre à crédit à un nouveau client. Veuillez d'abord enregistrer le client avec une limite de crédit."
+                )
+            
+            # Create new client automatically (only if not credit sale)
             new_client = Client(
                 name=client_name.strip(),
                 phone="",
@@ -211,6 +219,7 @@ async def create_sale(sale_data: SaleCreate):
             await db.clients.insert_one(client_data)
             client_id = new_client.id
             client_name = new_client.name
+            is_new_client = True
     
     # Calculate sale totals
     items = []
