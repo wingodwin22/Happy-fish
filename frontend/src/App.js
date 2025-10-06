@@ -64,12 +64,48 @@ function App() {
       await axios.post(`${API}/products`, {
         ...productForm,
         price: parseFloat(productForm.price),
-        stock: parseInt(productForm.stock)
+        stock: parseFloat(productForm.stock)
       });
       setProductForm({ name: '', category: 'poisson', price: '', stock: '', unit: 'kg' });
       loadDashboardData();
     } catch (error) {
       console.error('Erreur lors de la création du produit:', error);
+    }
+  };
+
+  const handleClientSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/clients`, {
+        ...clientForm,
+        credit_limit: parseFloat(clientForm.credit_limit)
+      });
+      setClientForm({ name: '', phone: '', email: '', address: '', credit_limit: 0 });
+      loadDashboardData();
+    } catch (error) {
+      console.error('Erreur lors de la création du client:', error);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+      try {
+        await axios.delete(`${API}/products/${productId}`);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Erreur lors de la suppression du produit:', error);
+      }
+    }
+  };
+
+  const handleDeleteClient = async (clientId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+      try {
+        await axios.delete(`${API}/clients/${clientId}`);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Erreur lors de la suppression du client:', error);
+      }
     }
   };
 
